@@ -39,8 +39,6 @@ public class CustomerDetailsServlet extends HttpServlet {
 	private @Resource(lookup = "jdbc/derby_sample")
 	DataSource derbyDS;
         
-        int i = 0;
-        
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
 			throws ServletException, IOException {
