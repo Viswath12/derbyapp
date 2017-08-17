@@ -45,9 +45,11 @@ public class CustomerDetailsServlet extends HttpServlet {
            String q = req.getParameter("cid");
 		Integer cid = null;
 
+                resp.setHeader("Access-Control-Allow-Origin", "*");
+                
 		JsonObject customerData = null;
-
-		resp.setHeader("Access-Control-Allow-Origin", "*");
+                
+		
 
 		if (Objects.isNull(q)) {
 			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -72,7 +74,7 @@ public class CustomerDetailsServlet extends HttpServlet {
 			}
 			// { filmId: 1, title: "abc", description: "...." }
 			customerData = Json.createObjectBuilder()
-					.add("customerId", cid)
+					.add("customerId", rs.getString("customer_id"))
 					.add("CustomerName", rs.getString("name"))
 					.add("phone", rs.getString("phone"))
                                         .add("email", rs.getString("email"))
