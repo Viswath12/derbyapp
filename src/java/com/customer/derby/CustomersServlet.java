@@ -17,8 +17,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 import javax.annotation.Resource;
+//using imported JSONObject class and JSONArray class to facilitate displaying customers as JSON array 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -42,14 +44,18 @@ public class CustomersServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
 			throws ServletException, IOException {
+            
             JSONArray customers = new JSONArray();
 
 		resp.setHeader("Access-Control-Allow-Origin", "*");
 
-		try (Connection conn = derbyDS.getConnection()) {
-			Statement stmt = conn.createStatement();
+		try (Connection con = derbyDS.getConnection()) {
+			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(QUERY);
-			while (rs.next()) {
+                        
+                        //while loop to loop through all the cusotmer records and convert them into customer
+                        //JSON array
+                            while (rs.next()) {
                             JSONObject c = new JSONObject();
                             try {
                             c.put("CustomerId", rs.getInt("customer_id"));
@@ -58,17 +64,18 @@ public class CustomersServlet extends HttpServlet {
                             } catch (JSONException j) {
                             }
 			}
-		} catch (SQLException ex) {
+		} catch (SQLException e) {
 			resp.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-			log(ex.getMessage());
+			log(e.getMessage());
 			return;
 		}
 
-		resp.setStatus(HttpServletResponse.SC_OK); //200
+		resp.setStatus(HttpServletResponse.SC_OK);
 		resp.setContentType("application/json");
 
-		try (PrintWriter pw = resp.getWriter()) {
-                    pw.println(customers.toString());
+                //printing customer array in JSON format
+		try (PrintWriter p = resp.getWriter()) {
+                    p.println(customers.toString());
                     }
         }
 }	

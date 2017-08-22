@@ -42,37 +42,36 @@ public class CustomerDetailsServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
 			throws ServletException, IOException {
-           String q = req.getParameter("cid");
-		Integer cid = null;
+           
+            String q = req.getParameter("cid");
+		
+            Integer cid = null;
 
                 resp.setHeader("Access-Control-Allow-Origin", "*");
                 
-		JsonObject customerData = null;
-                
-		
+		JsonObject customerData = null;		
 
+                //checking if query string is passed or not
 		if (Objects.isNull(q)) {
 			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 
-		//Try converting to Integer
 		try {
 			cid = Integer.parseInt(q);
-		} catch (NumberFormatException ex) {
+		} catch (NumberFormatException e) {
 			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 
-		try (Connection conn = derbyDS.getConnection()) {
-			PreparedStatement ps = conn.prepareStatement(QUERY);
+		try (Connection con = derbyDS.getConnection()) {
+			PreparedStatement ps = con.prepareStatement(QUERY);
 			ps.setInt(1, cid);
 			ResultSet rs = ps.executeQuery();
 			if (! rs.next()) {
 				resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 				return;
 			}
-			// { filmId: 1, title: "abc", description: "...." }
 			customerData = Json.createObjectBuilder()
 					.add("customerId", rs.getString("customer_id"))
 					.add("CustomerName", rs.getString("name"))
@@ -80,17 +79,20 @@ public class CustomerDetailsServlet extends HttpServlet {
                                         .add("email", rs.getString("email"))
 					.build();
 
-		} catch (SQLException ex) {
+		} catch (SQLException e) {
 			resp.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-			log(ex.getMessage());
+			log(e.getMessage());
 			return;
 		}
 
-		resp.setStatus(HttpServletResponse.SC_OK); //200
-		resp.setContentType("application/json");
+		resp.setStatus(HttpServletResponse.SC_OK);
+		
+                resp.setContentType("application/json");
 
-		try (PrintWriter pw = resp.getWriter()) {
-			pw.println(customerData.toString());
+                
+                //printing customer JSON object based on the customer id
+		try (PrintWriter p = resp.getWriter()) {
+			p.println(customerData.toString());
 		}
 	}
 	
